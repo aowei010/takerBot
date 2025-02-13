@@ -1,19 +1,17 @@
 import axios from 'axios';
 import { ethers } from 'ethers';
-import fs from 'fs';
 import log from './utils/logger.js';
 import iniBapakBudi from './utils/banner.js';
 import ngopiBro from './utils/contract.js';
 
-
+// 从环境变量读取钱包信息
 function readWallets() {
-    if (fs.existsSync("wallets.json")) {
-        const data = fs.readFileSync("wallets.json");
-        return JSON.parse(data);
-    } else {
-        log.error("No wallets found in wallets.json. Exiting...");
+    const wallets = process.env.WALLETS;
+    if (!wallets) {
+        log.error("No wallets found in environment variables. Exiting...");
         process.exit(1);
     }
+    return JSON.parse(wallets);
 }
 
 const API = 'https://lightmining-api.taker.xyz/';
@@ -52,8 +50,7 @@ const getUser = async (token, retries = 3) => {
     try {
         const response = await get('user/getUserInfo', token);
         return response.data;
-    }
-    catch (error) {
+    } catch (error) {
         if (retries > 0) {
             log.error("Failed to get user data:", error.message);
             log.warn(`Retrying... (${retries - 1} attempts left)`);
@@ -65,6 +62,7 @@ const getUser = async (token, retries = 3) => {
         }
     }
 };
+
 const getNonce = async (walletAddress, retries = 3) => {
     try {
         const res = await post(`wallet/generateNonce`, { walletAddress });
@@ -79,7 +77,6 @@ const getNonce = async (walletAddress, retries = 3) => {
             log.error("Failed to get nonce after retries:", error.message);
             return null;
         }
-
     }
 };
 
@@ -109,8 +106,7 @@ const getMinerStatus = async (token, retries = 3) => {
     try {
         const response = await get('assignment/totalMiningTime', token);
         return response.data;
-    }
-    catch (error) {
+    } catch (error) {
         if (retries > 0) {
             log.error("Failed to get user mine data:", error.message);
             log.warn(`Retrying... (${retries - 1} attempts left)`);
@@ -148,7 +144,7 @@ const main = async () => {
     log.info(iniBapakBudi)
     const wallets = readWallets();
     if (wallets.length === 0) {
-        log.error('', "No wallets found in wallets.json file - exiting program.");
+        log.error('', "No wallets found in environment variables - exiting program.");
         process.exit(1);
     }
 
