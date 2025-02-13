@@ -3,6 +3,9 @@ import { ethers } from 'ethers';
 import log from './utils/logger.js';
 import iniBapakBudi from './utils/banner.js';
 import ngopiBro from './utils/contract.js';
+import dotenv from 'dotenv';
+
+dotenv.config();  // 加载环境变量
 
 // 从环境变量读取钱包信息
 function readWallets() {
